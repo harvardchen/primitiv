@@ -151,21 +151,6 @@ kernel void concat_fw_kernel(
   if (i < y_size) py[(i / span) * skip + (i % span) + shift] = px[i % x_size];
 }
 
-inline void atomic_add_float(global float *source, const float operand) {
-  union {
-    unsigned u;
-    float f;
-  } oldval, newval;
-  unsigned readback;
-  oldval.f = *source;
-  newval.f = oldval.f + operand;
-  while ((readback = atomic_cmpxchg(
-      (global unsigned *) source, oldval.u, newval.u)) != oldval.u) {
-    oldval.u = readback;
-    newval.f = oldval.f + operand;
-  }
-}
-
 kernel void pick_bw_kernel(
     const global float *pgy, const global unsigned *pi,
     const unsigned wx, const unsigned wy,
